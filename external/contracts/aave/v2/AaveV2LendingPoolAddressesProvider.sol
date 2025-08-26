@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: agpl-3.0
 pragma solidity 0.6.12;
 
-import {Ownable} from '../../dependencies/openzeppelin/contracts/Ownable.sol';
+import {Ownable} from '"contracts/../dependencies/openzeppelin/contracts/Ownable.sol';"
 
 // Prettier ignore to prevent buidler flatter bug
 // prettier-ignore

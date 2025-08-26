@@ -1,0 +1,24 @@
+[profile.default]
+src = "src"
+out = "artifacts"
+optimizer = true
+optimizer_runs = 10000
+libs = [
+    "lib",
+    "node_modules",
+]
+remappings = [
+    "@ensdomains/=node_modules/@ensdomains/",
+    "@openzeppelin-upgradeable/=node_modules/@openzeppelin-upgradeable/",
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "@uniswap/=node_modules/@uniswap/",
+    "base64-sol/=node_modules/base64-sol/",
+    "hardhat/=node_modules/hardhat/",
+    "notional-solidity-sdk/=node_modules/notional-solidity-sdk/",
+    "openzeppelin-contracts-V4/=node_modules/openzeppelin-contracts-V4/",
+    "wrapped-fcash/=node_modules/wrapped-fcash/",
+    "contracts/=src/contracts/",
+    "external/=external/",
+]
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

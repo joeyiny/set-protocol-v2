@@ -43,19 +43,28 @@ const config: HardhatUserConfig = {
     ],
   },
   networks: {
+    anvil: {
+      url: "http://127.0.0.1:8545",
+      accounts: [
+        // Use one of the private keys that Anvil provides
+        "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
+        // ... add more as needed
+      ],
+    },
     hardhat: {
       allowUnlimitedContractSize: false,
-      forking: (process.env.FORK) ? forkingConfig : undefined,
+      forking: process.env.FORK ? forkingConfig : undefined,
       accounts: getHardhatPrivateKeys(),
       gas: 12000000,
-      blockGasLimit: 12000000
+      blockGasLimit: 12000000,
     },
     localhost: {
       url: "http://127.0.0.1:8545",
-      forking: (process.env.FORK) ? forkingConfig : undefined,
+      forking: process.env.FORK ? forkingConfig : undefined,
       timeout: 200000,
       gas: 12000000,
-      blockGasLimit: 12000000
+      blockGasLimit: 12000000,
     },
     kovan: {
       url: "https://kovan.infura.io/v3/" + process.env.INFURA_TOKEN,
@@ -94,9 +103,7 @@ const config: HardhatUserConfig = {
   // These are external artifacts we don't compile but would like to improve
   // test performance for by hardcoding the gas into the abi at runtime
   // @ts-ignore
-  externalGasMods: [
-    "external/abi/perp",
-  ],
+  externalGasMods: ["external/abi/perp"],
 };
 
 function getHardhatPrivateKeys() {
@@ -110,13 +117,16 @@ function getHardhatPrivateKeys() {
 }
 
 function checkForkedProviderEnvironment() {
-  if (process.env.FORK &&
-      (!process.env.ALCHEMY_TOKEN || process.env.ALCHEMY_TOKEN === "fake_alchemy_token")
-     ) {
-    console.log(chalk.red(
-      "You are running forked provider tests with invalid Alchemy credentials.\n" +
-      "Update your ALCHEMY_TOKEN settings in the `.env` file."
-    ));
+  if (
+    process.env.FORK &&
+    (!process.env.ALCHEMY_TOKEN || process.env.ALCHEMY_TOKEN === "fake_alchemy_token")
+  ) {
+    console.log(
+      chalk.red(
+        "You are running forked provider tests with invalid Alchemy credentials.\n" +
+          "Update your ALCHEMY_TOKEN settings in the `.env` file.",
+      ),
+    );
     process.exit(1);
   }
 }

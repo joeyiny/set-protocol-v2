@@ -20,7 +20,7 @@ pragma solidity 0.6.10;
 pragma experimental "ABIEncoderV2";
 
 import { BytesArrayUtils } from "../../../lib/BytesArrayUtils.sol";
-import { BytesLib } from "../../../../external/contracts/uniswap/v3/lib/BytesLib.sol";
+import { BytesLib } from "external/contracts/uniswap/v3/lib/BytesLib.sol";
 import { ISwapRouter } from "../../../interfaces/external/ISwapRouter.sol";
 
 /**
