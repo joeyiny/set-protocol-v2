@@ -9,8 +9,8 @@ import {ISetToken} from "../src/contracts/interfaces/ISetToken.sol";
 
 contract CreateSetToken is Script {
     // From your deployment
-    SetTokenCreator public setTokenCreator = SetTokenCreator(0x74DD958b1dc62EB8dbDf29d2Eb5C01a5e3132973);
-    address public basicIssuanceModule = 0x6223386cF634bbfd5dcF256b6ec82BFE47ff0Ae6;
+    SetTokenCreator public setTokenCreator = SetTokenCreator(0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9);
+    address public basicIssuanceModule = 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707;
     
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");

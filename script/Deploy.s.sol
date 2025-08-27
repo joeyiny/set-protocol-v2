@@ -61,6 +61,10 @@ contract Deploy is Script {
 
         // // // 4. SetValuer
         setValuer = new SetValuer(controllerInterface);
+
+
+        // 5. SetTokenCreator
+        setTokenCreator = new SetTokenCreator(controllerInterface);
         
         // // // 6. Modules
         basicIssuanceModule = new BasicIssuanceModule(controllerInterface);
@@ -86,7 +90,6 @@ contract Deploy is Script {
         controller.initialize(factories, modules, resources, resourceIds);
 
         // Deploy SetTokenCreator after controller initialization
-        setTokenCreator = new SetTokenCreator(controllerInterface);
         
         // Add SetTokenCreator as a factory
         controller.addFactory(address(setTokenCreator));

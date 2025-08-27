@@ -2,11 +2,17 @@ import { defineConfig } from "@wagmi/cli";
 import { foundry } from "@wagmi/cli/plugins";
 
 export default defineConfig({
-  out: "abis/CounterAbi.ts",
+  out: "abis/generated.ts",
   plugins: [
     foundry({
-      project: "./src/",
-      include: ["protocol/**/*.sol"],
+      project: "./",
+      include: [
+        "SetTokenCreator.sol/**",
+        "Controller.sol/**",
+        "BasicIssuanceModule.sol/**",
+        "StreamingFeeModule.sol/**",
+        "SetToken.sol/**",
+      ],
     }),
   ],
 });
