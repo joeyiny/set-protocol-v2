@@ -47,7 +47,9 @@
     "transpile:dist:latest": "tsc --project tsconfig.dist.json",
     "transpile:dist:hardhat": "tsc --project tsconfig.hardhat.json",
     "typechain": "npx hardhat typechain",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "anvil:fork-base":"anvil --fork-url https://mainnet.base.org --chain-id 31337",
+    "deploy:local": "forge script script/Deploy.s.sol:Deploy --rpc-url http://127.0.0.1:8545 --broadcast -vvv"
   },
   "repository": {
     "type": "git",
