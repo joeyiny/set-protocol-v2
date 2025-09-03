@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.0;
+pragma solidity ^0.6.10;
 
-import {Ownable, Ownable2Step} from "lib/openzeppelin-contracts/contracts/access/Ownable2Step.sol";
-import {IWETH9} from 'lib/v4-periphery/src/interfaces/external/IWETH9.sol';
-import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
-import {ReentrancyGuardTransient} from "lib/solady/src/utils/ReentrancyGuardTransient.sol";
+import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/SafeERC20.sol";
+import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 struct PriceCurve {
     uint256[] prices;
@@ -14,6 +13,13 @@ struct PriceCurve {
 struct FeeSplit {
     address recipient;
     uint256 bps; // basis points (10000 = 100%)
+}
+interface IWETH9 is IERC20 {
+    /// @notice Deposit ether to get wrapped ether
+    function deposit() external payable;
+
+    /// @notice Withdraw wrapped ether to get ether
+    function withdraw(uint256) external;
 }
 struct TokenDeploymentConfig {
     // creator
@@ -76,13 +82,13 @@ interface IStateManager {
     function tokenDeploymentConfigs(address token) external view returns (TokenDeploymentConfig memory);
 }
 
-contract WildcardAdapter is Ownable2Step, ReentrancyGuardTransient {
+contract WildcardAmmAdapter is Ownable, ReentrancyGuardTransient {
     using SafeERC20 for IERC20;
 
-    error InvalidToken();
-    error InvalidBaseToken();
-    error InvalidData();
-    error FailedToTransferTokens();
+    error InvalidToken;
+    error InvalidBaseToken;
+    error InvalidData;
+    error FailedToTransferTokens;
 
     IDeployer deployer;
     IWETH9 weth;
@@ -109,14 +115,14 @@ contract WildcardAdapter is Ownable2Step, ReentrancyGuardTransient {
         bytes memory _data
     ) external view returns (address, uint256, bytes memory) {
         if (_data.length > 0) {
-            revert InvalidData();
+            revert InvalidData;
         }
 
         // First check if the fromToken is a base token
         (bool isValidToken, address baseToken) = _getBaseToken(fromToken);
         if (isValidToken) {
             if (baseToken != toToken) {
-                revert InvalidBaseToken();
+                revert InvalidBaseToken;
             }
             bytes memory calldata_ =
                 abi.encodeWithSelector(this.sellToken.selector, fromToken, fromQuantity, minToQuantity, toAddress);
@@ -126,14 +132,14 @@ contract WildcardAdapter is Ownable2Step, ReentrancyGuardTransient {
         (bool isValidToken2, address baseToken2) = _getBaseToken(toToken);
         if (isValidToken2) {
             if (baseToken2 != fromToken) {
-                revert InvalidBaseToken();
+                revert InvalidBaseToken;
             }
             bytes memory calldata_ =
                 abi.encodeWithSelector(this.buyToken.selector, toToken, fromQuantity, minToQuantity, toAddress);
             return (address(this), 0, calldata_);
         }
 
-        revert InvalidToken();
+        revert InvalidToken;
     }
 
     function _getBaseToken(address token) internal view returns (bool, address) {
@@ -165,7 +171,7 @@ contract WildcardAdapter is Ownable2Step, ReentrancyGuardTransient {
                 }
             }
         } else {
-            revert InvalidToken();
+            revert InvalidToken;
         }
     }
 
@@ -180,7 +186,7 @@ contract WildcardAdapter is Ownable2Step, ReentrancyGuardTransient {
                 deployer.sellToken(token, amountIn, amountOutMin, to);
             }
         } else {
-            revert InvalidToken();
+            revert InvalidToken;
         }
     }
 
@@ -199,7 +205,7 @@ contract WildcardAdapter is Ownable2Step, ReentrancyGuardTransient {
             uint256 amount = actualETHBalance - expectedETHBalance;
             (bool success,) = payable(msg.sender).call{value: amount}("");
             if (!success) {
-                revert FailedToTransferTokens();
+                revert FailedToTransferTokens;
             }
         }
     }
