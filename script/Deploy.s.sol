@@ -14,6 +14,9 @@ import {PriceOracle} from "../src/contracts/protocol/PriceOracle.sol";
 import {IOracle} from "../src/contracts/interfaces/IOracle.sol";
 import {SetValuer} from "../src/contracts/protocol/SetValuer.sol";
 
+// Wildcard adapter
+import {WildcardAmmAdapter} from "../src/contracts/protocol/integration/amm/WildcardAmmAdapter.sol";
+
 // Basic modules
 import {BasicIssuanceModule} from "../src/contracts/protocol/modules/v1/BasicIssuanceModule.sol";
 import {StreamingFeeModule} from "../src/contracts/protocol/modules/v1/StreamingFeeModule.sol";
@@ -26,6 +29,11 @@ contract Deploy is Script {
     SetValuer public setValuer;
     BasicIssuanceModule public basicIssuanceModule;
     StreamingFeeModule public streamingFeeModule;
+    wildcardAmmAdapter public wildcardAmmAdapter;
+
+    address weth9_base = 0x4200000000000000000000000000000000000006;
+    address wildcard_deployer_base = 0x065EE5e9Ab0A4A382a5763f935176B880d512b06;
+
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -34,8 +42,6 @@ contract Deploy is Script {
         console.log("Deploying contracts with account:", deployer);
 
         vm.startBroadcast(deployerPrivateKey);
-
-
 
         // 1. Controller
         controller = new Controller(deployer);
@@ -59,14 +65,13 @@ contract Deploy is Script {
             oracles
         );
 
-        // // // 4. SetValuer
+        // 4. SetValuer
         setValuer = new SetValuer(controllerInterface);
-
 
         // 5. SetTokenCreator
         setTokenCreator = new SetTokenCreator(controllerInterface);
         
-        // // // 6. Modules
+        // 6. Modules
         basicIssuanceModule = new BasicIssuanceModule(controllerInterface);
         streamingFeeModule = new StreamingFeeModule(controllerInterface);
 
@@ -89,7 +94,9 @@ contract Deploy is Script {
 
         controller.initialize(factories, modules, resources, resourceIds);
 
-        // Deploy SetTokenCreator after controller initialization
+
+        // Deploy WildcardAmmAdapter
+        // wildcardAmmAdapter = new WildcardAmmAdapter(wildcard_deployer_base, deployer, weth9_base);
         
         // Add SetTokenCreator as a factory
         controller.addFactory(address(setTokenCreator));
