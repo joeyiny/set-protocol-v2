@@ -7,11 +7,14 @@ export default defineConfig({
     foundry({
       project: "./",
       include: [
-        "SetTokenCreator.sol/**",
+        "SetToken.sol/**",
         "Controller.sol/**",
+        "SetTokenCreator.sol/**",
         "BasicIssuanceModule.sol/**",
         "StreamingFeeModule.sol/**",
-        "SetToken.sol/**",
+        "WildcardAmmAdapter.sol/**",
+        "IntegrationRegistry.sol/**",
+        "WildcardAmmAdapter.sol/**",
       ],
     }),
   ],
