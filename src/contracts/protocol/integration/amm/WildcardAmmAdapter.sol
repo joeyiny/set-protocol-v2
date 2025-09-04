@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.6.10;
+pragma experimental ABIEncoderV2;
 
-import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/SafeERC20.sol";
-import {ReentrancyGuard} from "lib/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
-import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 struct PriceCurve {
     uint256[] prices;
     uint256 numSteps;
@@ -82,18 +83,14 @@ interface IStateManager {
     function tokenDeploymentConfigs(address token) external view returns (TokenDeploymentConfig memory);
 }
 
-contract WildcardAmmAdapter is Ownable, ReentrancyGuardTransient {
+contract WildcardAmmAdapter is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
-
-    error InvalidToken;
-    error InvalidBaseToken;
-    error InvalidData;
-    error FailedToTransferTokens;
 
     IDeployer deployer;
     IWETH9 weth;
 
-    constructor(address _deployer, address _owner, address _weth) Ownable(_owner) {
+    constructor(address _deployer, address _owner, address _weth) public {
+        transferOwnership(_owner);
         deployer = IDeployer(_deployer);
         weth = IWETH9(_weth);
     }
@@ -115,14 +112,14 @@ contract WildcardAmmAdapter is Ownable, ReentrancyGuardTransient {
         bytes memory _data
     ) external view returns (address, uint256, bytes memory) {
         if (_data.length > 0) {
-            revert InvalidData;
+            revert("Invalid data");
         }
 
         // First check if the fromToken is a base token
         (bool isValidToken, address baseToken) = _getBaseToken(fromToken);
         if (isValidToken) {
             if (baseToken != toToken) {
-                revert InvalidBaseToken;
+                revert("Invalid base token");
             }
             bytes memory calldata_ =
                 abi.encodeWithSelector(this.sellToken.selector, fromToken, fromQuantity, minToQuantity, toAddress);
@@ -132,14 +129,14 @@ contract WildcardAmmAdapter is Ownable, ReentrancyGuardTransient {
         (bool isValidToken2, address baseToken2) = _getBaseToken(toToken);
         if (isValidToken2) {
             if (baseToken2 != fromToken) {
-                revert InvalidBaseToken;
+                revert("Invalid base token");
             }
             bytes memory calldata_ =
                 abi.encodeWithSelector(this.buyToken.selector, toToken, fromQuantity, minToQuantity, toAddress);
             return (address(this), 0, calldata_);
         }
 
-        revert InvalidToken;
+        revert("Invalid token");
     }
 
     function _getBaseToken(address token) internal view returns (bool, address) {
@@ -171,7 +168,7 @@ contract WildcardAmmAdapter is Ownable, ReentrancyGuardTransient {
                 }
             }
         } else {
-            revert InvalidToken;
+            revert("Invalid token");
         }
     }
 
@@ -186,7 +183,7 @@ contract WildcardAmmAdapter is Ownable, ReentrancyGuardTransient {
                 deployer.sellToken(token, amountIn, amountOutMin, to);
             }
         } else {
-            revert InvalidToken;
+            revert("Invalid token");
         }
     }
 
@@ -205,7 +202,7 @@ contract WildcardAmmAdapter is Ownable, ReentrancyGuardTransient {
             uint256 amount = actualETHBalance - expectedETHBalance;
             (bool success,) = payable(msg.sender).call{value: amount}("");
             if (!success) {
-                revert FailedToTransferTokens;
+                revert("Failed to transfer tokens");
             }
         }
     }
