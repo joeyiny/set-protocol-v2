@@ -3,6 +3,7 @@ src = "src"
 out = "artifacts"
 optimizer = true
 optimizer_runs = 10000
+cbor_metadata = true
 libs = [
     "lib",
     "node_modules",
@@ -21,4 +22,11 @@ remappings = [
     "external/=external/",
 ]
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[etherscan]
+unknown_chain = { key = "E4sv1z5OnLkdB2UiKunJcNflZomkSE8t", chain = 8453, url = "https://virtual.base.us-east.rpc.tenderly.co/5fee4d63-b513-4b40-ae48-05769614d3c9" }
+
+[fmt]
+sort_imports = true
+
+[rpc_endpoints]
+tenderly = "https://virtual.base.us-east.rpc.tenderly.co/499e90ce-0e20-47d7-b409-6375e6ac5f4f"
