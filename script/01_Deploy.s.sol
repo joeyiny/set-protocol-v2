@@ -75,6 +75,8 @@ contract Deploy is Script {
         controller.addModule(address(slippageIssuanceModule));
         controller.addModule(address(wildcardIssuanceModule));
 
+        integrationRegistry.addIntegration(address(slippageIssuanceModule), "WildcardIssuanceModule", address(slippageIssuanceModule));
+
         console.log("\n=== Deployment Summary ===");
         console.log("Controller deployed at:", address(controller));
         console.log("IntegrationRegistry deployed at:", address(integrationRegistry));
