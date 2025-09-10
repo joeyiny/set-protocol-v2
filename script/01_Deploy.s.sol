@@ -73,9 +73,6 @@ contract Deploy is Script {
         controller.initialize(new address[](0), new address[](0), new address[](0), new uint256[](0));
         controller.addFactory(address(setTokenCreator));
         controller.addModule(address(slippageIssuanceModule));
-        controller.addModule(address(wildcardIssuanceModule));
-
-        integrationRegistry.addIntegration(address(slippageIssuanceModule), "WildcardIssuanceModule", address(slippageIssuanceModule));
 
         console.log("\n=== Deployment Summary ===");
         console.log("Controller deployed at:", address(controller));
