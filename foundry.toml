@@ -30,3 +30,4 @@ sort_imports = true
 
 [rpc_endpoints]
 tenderly = "https://virtual.base.us-east.rpc.tenderly.co/499e90ce-0e20-47d7-b409-6375e6ac5f4f"
+anvil = "http://localhost:8545"
