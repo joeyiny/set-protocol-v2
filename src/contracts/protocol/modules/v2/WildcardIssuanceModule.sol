@@ -4,16 +4,14 @@ pragma experimental "ABIEncoderV2";
 
 import {IModuleIssuanceHookV2} from "../../../interfaces/IModuleIssuanceHookV2.sol";
 
+import {IController} from "../../../interfaces/IController.sol";
 import {IDebtIssuanceModule} from "../../../interfaces/IDebtIssuanceModule.sol";
 import {ISetToken} from "../../../interfaces/ISetToken.sol";
-import {ModuleBaseV2} from "../../lib/ModuleBaseV2.sol";
-import {SetTokenAccessible} from "../../lib/SetTokenAccessible.sol";
-
-import {IController} from "../../../interfaces/IController.sol";
-
 import {IWETH} from "../../../interfaces/external/IWETH.sol";
 import {IWildcardDeployer} from "../../../interfaces/external/IWildcardDeployer.sol";
 import {IWildcardStateManager} from "../../../interfaces/external/IWildcardStateManager.sol";
+import {ModuleBaseV2} from "../../lib/ModuleBaseV2.sol";
+import {SetTokenAccessible} from "../../lib/SetTokenAccessible.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -72,8 +70,8 @@ contract WildcardIssuanceModule is ModuleBaseV2, IModuleIssuanceHookV2, SetToken
         override
         onlyModule(_setToken)
     {
-        console.log("WildcardIssuanceModule componentIssueHook");
-        wildcardStateManager.buyToken(msg.sender, address(_component), _setTokenQuantity, 0, address(this));
+        // console.log("WildcardIssuanceModule componentIssueHook");
+        // wildcardStateManager.buyToken(msg.sender, address(_component), _setTokenQuantity, 0, address(this));
     }
 
     function componentRedeemHook(ISetToken _setToken, uint256 _setTokenQuantity, IERC20 _component, bool _isEquity)
@@ -81,6 +79,7 @@ contract WildcardIssuanceModule is ModuleBaseV2, IModuleIssuanceHookV2, SetToken
         override
         onlyModule(_setToken)
     {
+        _isEquity;
         wildcardStateManager.sellToken(msg.sender, address(_component), _setTokenQuantity, 0, address(this));
     }
 
@@ -99,15 +98,19 @@ contract WildcardIssuanceModule is ModuleBaseV2, IModuleIssuanceHookV2, SetToken
             uint256 currentBalance = component.balanceOf(msg.sender);
             // If we don't have enough, buy from Wildcard
             if (currentBalance < requiredAmount) {
-                uint256 amountToBuy = 1e18;
-
+                uint256 amountToBuy = requiredAmount - currentBalance;
+                console.log("amountToBuy: ", amountToBuy);
+                console.log("currentBalance: ", currentBalance);
+                console.log("requiredAmount: ", requiredAmount);
                 // TODO: Query actual ETH needed from Wildcard protocol
                 // For now, use a conservative estimate (2x the token amount as ETH)
-                uint256 ethNeeded = 2e18;
+                uint256 ethNeeded = 2 * amountToBuy;
 
-                console.log("tx origin balance of weth: ", IERC20(address(weth)).balanceOf(tx.origin));
-                console.log("tx origin address: ", tx.origin);
+                console.log("tx.origin balance of weth: ", IERC20(address(weth)).balanceOf(tx.origin));
+                console.log("tx.origin address: ", tx.origin);
+                console.log("msg.sender address: ", msg.sender);
                 IERC20(address(weth)).safeTransferFrom(tx.origin, address(this), ethNeeded);
+                // console.log("ethNeeded: ", ethNeeded);
                 weth.withdraw(ethNeeded);
                 uint256 balanceOfEth = address(this).balance;
                 console.log("WildcardIssuanceModule balance of eth: ", balanceOfEth);
@@ -133,7 +136,9 @@ contract WildcardIssuanceModule is ModuleBaseV2, IModuleIssuanceHookV2, SetToken
         external
         override
         onlyModule(_setToken)
-    {}
+    {
+        console.log("WildcardIssuanceModule moduleRedeemHook");
+    }
 
     function getIssuanceAdjustments(ISetToken, /* _setToken */ uint256 /* _setTokenQuantity */ )
         external
