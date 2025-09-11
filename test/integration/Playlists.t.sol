@@ -37,10 +37,11 @@ contract PlaylistsTest is BaseTest {
 
     function launchPlaylist() public {
         vm.startPrank(deployer);
+
         address[] memory components = new address[](3);
-        components[0] = 0xCe91B0aeff1380F53BB0d98Fc9a3819d18d9bbd9; // yeat - idgaf
-        components[1] = 0xC5bC2f22c2793FB873f04be35bb9AF2b8C2b616e; // bryson tiller - finished
-        components[2] = 0x92c99C9a9eaE3f7385AC2D919D086a96FA1bc4f3; // cash cobain - fisherrr remix
+        components[0] = 0x162a6fd7C08b6761a559D85853755A84FBf546fA;
+        components[1] = 0x92c99C9a9eaE3f7385AC2D919D086a96FA1bc4f3;
+        components[2] = 0x4937573372A302d1d9811E52e871cA13aCfFC19A;
 
         int256[] memory units = new int256[](3);
         units[0] = 1e18;
@@ -55,6 +56,7 @@ contract PlaylistsTest is BaseTest {
         slippageIssuanceModule.initialize(ISetToken(setToken), 0, 0, 0, deployer, IManagerIssuanceHook(address(0)));
         controller.addModule(address(wildcardIssuanceModule));
         ISetToken(setToken).addModule(address(wildcardIssuanceModule));
+
         wildcardIssuanceModule.initialize(ISetToken(setToken));
 
         vm.stopPrank();
@@ -64,15 +66,16 @@ contract PlaylistsTest is BaseTest {
         launchPlaylist();
     }
 
-    function testBuyPlaylist() public {
+    function test_BuyPlaylist() public {
         launchPlaylist();
-        vm.startPrank(deployer);
-
+        vm.startPrank(deployer, deployer);
         IERC20(weth).approve(address(wildcardIssuanceModule), type(uint256).max);
-        weth.deposit{value: 1 ether}();
+        IERC20(weth).approve(address(slippageIssuanceModule), type(uint256).max);
+        IERC20(weth).approve(address(controller), type(uint256).max);
+        IERC20(weth).approve(address(setToken), type(uint256).max);
+        weth.deposit{value: 10 ether}();
         address[] memory components = setToken.getComponents();
         for (uint256 i = 0; i < components.length; i++) {
-            console.log("Component: ", components[i]);
             IERC20(components[i]).approve(address(slippageIssuanceModule), type(uint256).max);
         }
         address[] memory allComponents = setToken.getComponents();
@@ -80,17 +83,18 @@ contract PlaylistsTest is BaseTest {
         for (uint256 i = 0; i < allComponents.length; i++) {
             maxAmounts[i] = 1e18;
         }
-        uint256 wethBalance = IERC20(address(weth)).balanceOf(deployer);
-        uint256 ethBalance = deployer.balance;
-
         slippageIssuanceModule.issueWithSlippage(
             setToken,
-            1e15,
+            1e18,
             allComponents, // _checkedComponents
             maxAmounts, // _maxTokenAmountsIn (empty array)
             deployer
         );
 
+        console.log("song1 balance: ", IERC20(components[0]).balanceOf(deployer));
+        console.log("song2 balance: ", IERC20(components[1]).balanceOf(deployer));
+        console.log("song3 balance: ", IERC20(components[2]).balanceOf(deployer));
+        console.log("setToken balance: ", IERC20(setToken).balanceOf(deployer));
         vm.stopPrank();
     }
 }

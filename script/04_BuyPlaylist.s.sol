@@ -8,6 +8,9 @@ import {IWETH} from "../src/contracts/interfaces/external/IWETH.sol";
 import {IDebtIssuanceModule} from "../src/contracts/interfaces/IDebtIssuanceModule.sol";
 
 import {Controller} from "../src/contracts/protocol/Controller.sol";
+import {IController} from "../src/contracts/interfaces/IController.sol";
+import {IWildcardDeployer} from "../src/contracts/interfaces/external/IWildcardDeployer.sol";
+import {IWildcardStateManager} from "../src/contracts/interfaces/external/IWildcardStateManager.sol";
 import {SlippageIssuanceModule} from "../src/contracts/protocol/modules/v1/SlippageIssuanceModule.sol";
 import {WildcardIssuanceModule} from "../src/contracts/protocol/modules/v2/WildcardIssuanceModule.sol";
 import {WildcardIssuanceModule} from "../src/contracts/protocol/modules/v2/WildcardIssuanceModule.sol";
@@ -23,27 +26,24 @@ import "forge-std/console.sol";
   SetTokenCreator deployed at: 0xb11876B158304b50eC1Ae19e20A89435918Db44C
   SlippageIssuanceModule deployed at: 0xfbac408ebA2b42cda52C9F2BE81128945B3C764a
   WildcardIssuanceModule deployed at: 0xfC5180481ccD364Ec36c8e5e28A85513CE859dCF
-
-  */
+*/
 
 contract BuyPlaylist is Script {
+    address weth9_base = 0x4200000000000000000000000000000000000006;
+    address wildcard_deployer_base = 0x065EE5e9Ab0A4A382a5763f935176B880d512b06;
+    address wildcard_state_manager_base = 0xC67348A3a3F51f8d4BEE9EB792614b7AD4248786;
+    address joey_viral_address = 0xc9C03B554f83DEFBAC6b7F4D5c8380c695bda3D2;
     IWETH public weth = IWETH(0x4200000000000000000000000000000000000006);
-    WildcardIssuanceModule public wildcardIssuanceModule =
-        WildcardIssuanceModule(0xfC5180481ccD364Ec36c8e5e28A85513CE859dCF);
+    WildcardIssuanceModule public wildcardIssuanceModule = WildcardIssuanceModule(0xf2bD7B7B758f9D693768884c01F983922Bb79673);
     SlippageIssuanceModule public slippageIssuanceModule =
         SlippageIssuanceModule(0xfbac408ebA2b42cda52C9F2BE81128945B3C764a);
-    ISetToken public setToken = ISetToken(0xd84c5f9862De52B9fDa1244Aff40966EABC3C0fb);
+    ISetToken public setToken = ISetToken(0x7a1Ad5961df61F5E498e382FC41E8e3094351DAd);
     Controller public controller = Controller(0xE9B4979c7075E885b82aa5f1A673aB16B4EB5775);
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerPrivateKey);
         vm.startBroadcast(deployerPrivateKey);
-
-        controller.addModule(address(wildcardIssuanceModule));
-        setToken.addModule(address(wildcardIssuanceModule));
-        wildcardIssuanceModule.initialize(setToken);
-        // wildcardIssuanceModule.registerToIssuanceModule(IDebtIssuanceModule(address(slippageIssuanceModule)), setToken);
 
         IERC20(weth).approve(address(wildcardIssuanceModule), type(uint256).max);
         weth.deposit{value: 1 ether}();
@@ -57,8 +57,6 @@ contract BuyPlaylist is Script {
         for (uint256 i = 0; i < allComponents.length; i++) {
             maxAmounts[i] = 1e18;
         }
-        uint256 wethBalance = IERC20(address(weth)).balanceOf(deployer);
-        uint256 ethBalance = deployer.balance;
 
         slippageIssuanceModule.issueWithSlippage(
             setToken,

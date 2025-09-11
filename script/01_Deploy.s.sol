@@ -63,23 +63,24 @@ contract Deploy is Script {
         SlippageIssuanceModule slippageIssuanceModule = new SlippageIssuanceModule(IController(address(controller)));
 
         // // 5. WildcardIssuanceModule
-        WildcardIssuanceModule wildcardIssuanceModule = new WildcardIssuanceModule(
-            IController(address(controller)),
-            IWildcardDeployer(wildcard_deployer_base),
-            IWildcardStateManager(wildcard_state_manager_base),
-            IWETH(address(weth9_base))
-        );
+        // WildcardIssuanceModule wildcardIssuanceModule = new WildcardIssuanceModule(
+        //     IController(address(controller)),
+        //     IWildcardDeployer(wildcard_deployer_base),
+        //     IWildcardStateManager(wildcard_state_manager_base),
+        //     IWETH(address(weth9_base))
+        // );
 
         controller.initialize(new address[](0), new address[](0), new address[](0), new uint256[](0));
         controller.addFactory(address(setTokenCreator));
         controller.addModule(address(slippageIssuanceModule));
+        //    controller.addModule(address(wildcardIssuanceModule));
 
         console.log("\n=== Deployment Summary ===");
         console.log("Controller deployed at:", address(controller));
         console.log("IntegrationRegistry deployed at:", address(integrationRegistry));
         console.log("SetTokenCreator deployed at:", address(setTokenCreator));
         console.log("SlippageIssuanceModule deployed at:", address(slippageIssuanceModule));
-        console.log("WildcardIssuanceModule deployed at:", address(wildcardIssuanceModule));
+        // console.log("WildcardIssuanceModule deployed at:", address(wildcardIssuanceModule));
 
         vm.stopBroadcast();
     }

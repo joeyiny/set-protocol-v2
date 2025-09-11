@@ -7,6 +7,8 @@ import "forge-std/console.sol";
 
 import {IManagerIssuanceHook} from "../src/contracts/interfaces/IManagerIssuanceHook.sol";
 import {ISetToken} from "../src/contracts/interfaces/ISetToken.sol";
+
+import {Controller} from "../src/contracts/protocol/Controller.sol";
 import {SetTokenCreator} from "../src/contracts/protocol/SetTokenCreator.sol";
 import {SlippageIssuanceModule} from "../src/contracts/protocol/modules/v1/SlippageIssuanceModule.sol";
 import {WildcardIssuanceModule} from "../src/contracts/protocol/modules/v2/WildcardIssuanceModule.sol";
@@ -31,21 +33,27 @@ contract LaunchPlaylist is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         SetTokenCreator setTokenCreator = SetTokenCreator(0xb11876B158304b50eC1Ae19e20A89435918Db44C);
-        WildcardIssuanceModule wildcardIssuanceModule =
-            WildcardIssuanceModule(0xfC5180481ccD364Ec36c8e5e28A85513CE859dCF);
+        // WildcardIssuanceModule wildcardIssuanceModule =
+        //     WildcardIssuanceModule(0xfC5180481ccD364Ec36c8e5e28A85513CE859dCF);
         SlippageIssuanceModule slippageIssuanceModule =
             SlippageIssuanceModule(0xfbac408ebA2b42cda52C9F2BE81128945B3C764a);
+        Controller controller = Controller(0xE9B4979c7075E885b82aa5f1A673aB16B4EB5775);
+        address[] memory components = new address[](3);
+        components[0] = 0xDf961AE00Ba4F5f1993E25f43850c77C5990dB63;
+        components[1] = 0x92c99C9a9eaE3f7385AC2D919D086a96FA1bc4f3;
+        components[2] = 0xC5bC2f22c2793FB873f04be35bb9AF2b8C2b616e;
 
-        address[] memory components = new address[](1);
-        components[0] = 0xCe91B0aeff1380F53BB0d98Fc9a3819d18d9bbd9; // yeat
-        int256[] memory units = new int256[](1);
+        int256[] memory units = new int256[](3);
         units[0] = 1e18;
+        units[1] = 1e18;
+        units[2] = 1e18;
         address[] memory modules = new address[](1);
         modules[0] = address(slippageIssuanceModule);
 
-        address setToken = setTokenCreator.create(components, units, modules, deployer, "yeat songs 3", "YEAT");
+        address setToken = setTokenCreator.create(components, units, modules, deployer, "some cool songs", "BANGERS");
 
         slippageIssuanceModule.initialize(ISetToken(setToken), 0, 0, 0, deployer, IManagerIssuanceHook(address(0)));
+
         vm.stopBroadcast();
     }
 }
